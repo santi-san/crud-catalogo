@@ -126,23 +126,26 @@ class MarcaController extends Controller
     }
 
 
-
-
-    public function confirmar($id) 
+    private function checkProducto($id)
     {
-        // Consultar si hay productos con esa marca
-        $productos = Producto::where('idMarca', $id)->get()->count();
-        # obtner los datos de una marca
-        $Marca = Marca::find($id);
-
-        # retornar la vista
-        return view('eliminarMarca',
-                [ 
-                    'Marca'=>$Marca,
-                    'productos'=>$productos
-                ]
-            );
+        //$check = Producto::where('idMarca', $id)->first();
+        //$check = Producto::firstWhere('idMarca', $id);
+        $check = Producto::where('idMarca', $id)->count();
+        return $check;
     }
+
+    public function confirmar($id)
+    {
+        // obtener datos de la marca
+        $Marca = Marca::find($id);
+        ## chequear si hay un producto de esa marca
+        if( $this->checkProducto($id) == 0 ){
+            return view('eliminarMarca', [ 'Marca'=>$Marca ]);
+        }
+        return redirect('/adminMarcas')
+                ->with( ['mensaje'=>'No se pudo eliminar la marca: '.$Marca->mkNombre.' ya que tiene productos relacionados'] );
+    }
+
 
     /**
      * Remove the specified resource from storage.
